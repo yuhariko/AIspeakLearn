@@ -1,0 +1,2 @@
+whisper-openai need ffmpeg
+sudo apt update && sudo apt install ffmpeg
