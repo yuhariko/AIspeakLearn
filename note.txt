@@ -1,2 +1,8 @@
 whisper-openai need ffmpeg
 sudo apt update && sudo apt install ffmpeg
+
+do this for llam-cpp-python if get error
+RuntimeError: Failed to load shared library '/usr/local/lib/python3.10/dist-packages/llama_cpp/lib/libllama.so': libc.musl-x86_64.so.1: cannot open shared object file: No such file or directory
+
+apt install musl-dev
+ln -s /usr/lib/x86_64-linux-musl/libc.so /lib/libc.musl-x86_64.so.1
