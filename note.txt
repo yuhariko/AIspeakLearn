@@ -6,3 +6,13 @@ RuntimeError: Failed to load shared library '/usr/local/lib/python3.10/dist-pack
 
 apt install musl-dev
 ln -s /usr/lib/x86_64-linux-musl/libc.so /lib/libc.musl-x86_64.so.1
+
+install melo-ai
+
+git clone https://github.com/myshell-ai/MeloTTS.git
+cd MeloTTS
+pip install -e .
+python -m unidic download
+
+import nltk
+nltk.download('averaged_perceptron_tagger_eng')

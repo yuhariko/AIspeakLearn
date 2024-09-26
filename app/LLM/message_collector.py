@@ -42,7 +42,7 @@ class MessageCollector:
 
 
 if __name__ == "__main__":
-    mc = MessageCollector("abcdedfg", "/home/huy/project/AIspeakLearn/temp")
+    mc = MessageCollector("abcdedfg", "/temp")
     contents = [
         {"role": "system", "content": "You are an assistant who is English foreigner."},
         {
