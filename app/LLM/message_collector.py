@@ -1,58 +1,45 @@
 import os
-import json
+
+from LLM.prompt import system_prompt
+from utils.utils import find_or_create_temp_dir, get_llm_format, get_message_from_json
 
 
 class MessageCollector:
-    def __init__(self, id, message_path):
-        self.id = id
-        self.message_path = message_path
-        self.file_path = os.path.join(self.message_path, self.id + ".json")
+    def __init__(self):
+        self.message_path = find_or_create_temp_dir()
 
-    def get_message_from_json(self):
-        with open(self.file_path, 'r') as file:
-            data = json.load(file)
-        return data
+    def get_chat_message(self, dp, number_maximum_message=10):
+        """
+        Prepare the message to put into LLMs.
+        :param dp: datapoint
+        :param number_maximum_message:length history of message to LLMs. It affects the speed and accurate of LLMs.
+        :return: put message to datapoint
+        """
+        llm_chat_path = os.path.join(self.message_path, 'chat')
+        if not os.path.exists(llm_chat_path):
+            os.makedirs(llm_chat_path, exist_ok=True)
+        llm_file_path = os.path.join(llm_chat_path, dp.id + ".json")
+        dp.llm_file_path = llm_file_path
+        messages = get_message_from_json(llm_file_path)
 
-    def write_message_to_cache(self, contents):
-        """contents: A list of dict include data format {'role':'user'/'assistant'/'system', 'content':text data}"""
-        for content in contents:
-            if content['role'] not in ['user', 'assistant', 'system']:
-                raise f'The role excepted are user and assistant but get {content["role"]}'
-        if os.path.isfile(self.file_path):
-            with open(self.file_path, 'r') as file:
-                data = json.load(file)
-
-            data.extend(contents)
-        else:
-            data = contents
-
-        json_object = json.dumps(data, indent=4)
-        with open(self.file_path, "w") as outfile:
-            outfile.write(json_object)
-
-    def get_chat_message(self, number_maximum_message=10):
-        """if the length of chat too long we need to summary it to run faster."""
-        messages = self.get_message_from_json()
-        number_message = len(messages)
-
-        if number_message < 10:
-            return messages
-        else:
-            return messages
+        if len(messages) == 0:
+            system_prompt_with_topic = system_prompt.format(topic=dp.topic)
+            system_role = get_llm_format(role='system', content=system_prompt_with_topic)
+            messages.append(system_role)
+        user_role = get_llm_format(role='user', content=dp.user_text)
+        messages.append(user_role)
+        dp.message = messages
 
 
 if __name__ == "__main__":
-    mc = MessageCollector("abcdedfg", "/temp")
-    contents = [
-        {"role": "system", "content": "You are an assistant who is English foreigner."},
-        {
-            "role": "assistant",
-            "content": "conversation talk about tet holiday."
-        },
-        {
-            "role": "user",
-            "content": "when it start?"
-        }
-    ]
-    mc.write_message_to_cache(contents)
+    from pipeline.dataclass import DataPoint
+    from utils.utils import write_message_to_cache
 
+    dp = DataPoint()
+    dp.id = "temp_id"
+    dp.topic = "menu"
+    dp.user_text = "You are number one"
+    mc = MessageCollector()
+    mc.get_chat_message(dp)
+    dp.llm_message = {'role': 'assistant', 'content': 'abbcbcbcbc'}
+    write_message_to_cache(dp)

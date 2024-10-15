@@ -1,17 +1,20 @@
-class TextToSpeach:
+class SpeakToText:
     def __init__(self, model):
         self.model = model
 
-    def get_text(self, audio_path):
-        result = self.model.transcribe(audio_path)
-        text_result = result["text"]
-        return text_result
+    def get_user_text(self, dp):
+        result = self.model.transcribe(dp.audio)
+        text = result["text"]
+        dp.user_text = text
 
 
 if __name__ == "__main__":
     import whisper
+    from pipeline.dataclass import DataPoint
 
+    dp = DataPoint()
+    dp.audio = "/home/huy/project/AIspeakLearn/temp/abc.wav"
     model = whisper.load_model("tiny.en")
-    tts = TextToSpeach(model)
-    result = tts.get_text("/home/huy/Downloads/test_000000/ZBA040416CL19/ZBA040416CL19/ZBA_040416-CL19_DOT_flac_00005.flac")
-    print(result)
+    tts = SpeakToText(model)
+    result = tts.get_text(dp)
+    print(dp.text_result)
