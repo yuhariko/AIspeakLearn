@@ -2,14 +2,13 @@ import os
 import whisper
 from llama_cpp import Llama
 from melo.api import TTS
-from pipeline.dataclass import Result
 
+from pipeline.dataclass import DataPoint, Result
 from utils.utils import write_message_to_cache
 from STT.speak_to_text import SpeakToText
 from TTS.text_to_speach import TextToSpeak
 from LLM.LLMs import ChatLLMs
 from LLM.message_collector import MessageCollector
-from dataclass import DataPoint
 
 
 class SpeakAI:
@@ -23,7 +22,7 @@ class SpeakAI:
             raise "Can not load Speak to text model!"
 
         if llm_model is None:
-            llm_model = "Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf"
+            llm_model = "Llama-3.2-1B-Instruct-Q6_K_L.gguf"
         try:
             llm_path = os.path.join(ai_model_path, llm_model)
             llm = Llama(
@@ -62,9 +61,12 @@ class SpeakAI:
         dp.topic = topic
 
         self.stt.get_user_text(dp)
+        print('speech to text done')
         self.mc.get_chat_message(dp)
         self.llms.get_llm_message(dp)
+        print('llm done')
         self.tts.get_speak(dp)
+        print('text to speech done')
         write_message_to_cache(dp)
 
         result = Result(self.config)
@@ -72,8 +74,8 @@ class SpeakAI:
         return final_result
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     spk = SpeakAI()
-    result = spk.serve('abc',"/home/huy/project/AIspeakLearn/temp/abc.wav", 'toys')
+    result = spk.serve('abc', "/home/huy/project/AIspeakLearn/temp/voice_in/test.wav", 'toys')
     print(result)
     print('succesful!!!')
