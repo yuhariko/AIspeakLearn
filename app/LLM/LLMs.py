@@ -2,7 +2,7 @@ class ChatLLMs:
     def __init__(self, model):
         self.model = model
 
-    def get_llm_message(self, dp, max_tokens=100, temperature=0.5):
+    def get_llm_message(self, dp, max_tokens=50, temperature=0.5):
         llm_result = self.model.create_chat_completion(
             max_tokens=max_tokens,
             temperature=temperature,
@@ -12,6 +12,7 @@ class ChatLLMs:
 
 
 if __name__ == "__main__":
+    import time
     from llama_cpp import Llama
     from pipeline.dataclass import DataPoint
 
@@ -33,5 +34,6 @@ if __name__ == "__main__":
         }
     ]
     llm = ChatLLMs(llm)
+    start = time.time()
     result = llm.get_llm_message(dp)
-    print(dp)
+    print(time.time() - start)
